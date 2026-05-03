@@ -33,4 +33,21 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Delete a budget
+router.delete('/:id', async (req, res) => {
+  try {
+    const budget = await Budget.findById(req.params.id);
+    if (!budget) return res.status(404).json({ message: 'Budget not found' });
+
+    if (budget.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    await budget.deleteOne();
+    res.json({ message: 'Budget deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

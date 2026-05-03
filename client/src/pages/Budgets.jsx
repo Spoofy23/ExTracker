@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import api from '../api';
 
 const CATEGORIES = ['Food', 'Travel', 'Bills', 'Shopping', 'Entertainment', 'Other'];
@@ -49,6 +50,17 @@ const Budgets = () => {
       setError(err.response?.data?.message || 'Failed to save budget');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteBudget = async (id) => {
+    if (window.confirm('Are you sure you want to delete this budget?')) {
+      try {
+        await api.delete(`/budgets/${id}`);
+        fetchBudgets();
+      } catch (err) {
+        console.error('Failed to delete budget', err);
+      }
     }
   };
 
@@ -103,9 +115,15 @@ const Budgets = () => {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {budgets.map(b => (
-                  <div key={b._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-color)', borderRadius: '8px' }}>
-                    <span style={{ fontWeight: '500' }}>{b.category}</span>
-                    <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{b.amount.toFixed(2)}</span>
+                  <div key={b._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'var(--bg-color)', borderRadius: '8px' }}>
+                    <span style={{ fontWeight: '500', flex: 1 }}>{b.category}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{b.amount.toFixed(2)}</span>
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <button onClick={() => { setFormData({ category: b.category, amount: b.amount }) }} className="btn-icon" style={{ color: 'var(--primary-color)', padding: '0.25rem' }} title="Edit"><Pencil size={16} /></button>
+                        <button onClick={() => handleDeleteBudget(b._id)} className="btn-icon" style={{ padding: '0.25rem' }} title="Delete"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

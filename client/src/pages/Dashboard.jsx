@@ -22,12 +22,17 @@ const Dashboard = () => {
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [newGoal, setNewGoal] = useState({ title: '', targetAmount: '', currentAmount: '' });
   const [addingGoal, setAddingGoal] = useState(false);
+  const [editingGoalId, setEditingGoalId] = useState(null);
 
   const fetchData = useCallback(async () => {
     try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
       const [summaryRes, catRes, budgetRes, expenseRes, goalsRes] = await Promise.all([
         api.get('/expenses/monthly-summary'),
-        api.get('/expenses/category-summary'),
+        api.get(`/expenses/category-summary?month=${currentMonth}&year=${currentYear}`),
         api.get('/budgets'),
         api.get('/expenses?limit=5'),
         api.get('/goals')
@@ -44,7 +49,6 @@ const Dashboard = () => {
       });
       setSummary(formattedData);
 
-      const currentDate = new Date();
       const thisMonth = data.find(item => item._id.year === currentDate.getFullYear() && item._id.month === currentDate.getMonth() + 1);
       
       let lastMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
@@ -82,18 +86,48 @@ const Dashboard = () => {
     e.preventDefault();
     setAddingGoal(true);
     try {
-      await api.post('/goals', {
-        title: newGoal.title,
-        targetAmount: Number(newGoal.targetAmount),
-        currentAmount: Number(newGoal.currentAmount) || 0
-      });
+      if (editingGoalId) {
+        await api.put(`/goals/${editingGoalId}`, {
+          title: newGoal.title,
+          targetAmount: Number(newGoal.targetAmount),
+          currentAmount: Number(newGoal.currentAmount) || 0
+        });
+      } else {
+        await api.post('/goals', {
+          title: newGoal.title,
+          targetAmount: Number(newGoal.targetAmount),
+          currentAmount: Number(newGoal.currentAmount) || 0
+        });
+      }
       setShowGoalForm(false);
       setNewGoal({ title: '', targetAmount: '', currentAmount: '' });
+      setEditingGoalId(null);
       fetchData(); // Refresh data
     } catch (error) {
-      console.error('Failed to add goal', error);
+      console.error('Failed to save goal', error);
     } finally {
       setAddingGoal(false);
+    }
+  };
+
+  const handleEditGoal = (goal) => {
+    setNewGoal({
+      title: goal.title,
+      targetAmount: goal.targetAmount,
+      currentAmount: goal.currentAmount
+    });
+    setEditingGoalId(goal._id);
+    setShowGoalForm(true);
+  };
+
+  const handleDeleteGoal = async (id) => {
+    if (window.confirm('Are you sure you want to delete this goal?')) {
+      try {
+        await api.delete(`/goals/${id}`);
+        fetchData();
+      } catch (error) {
+        console.error('Failed to delete goal', error);
+      }
     }
   };
 
@@ -221,7 +255,13 @@ const Dashboard = () => {
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
               <Target size={20} color="var(--primary-color)" /> Savings Goals
             </h3>
-            <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary-color)' }} onClick={() => setShowGoalForm(!showGoalForm)}>
+            <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary-color)' }} onClick={() => {
+              setShowGoalForm(!showGoalForm);
+              if (showGoalForm) {
+                setNewGoal({ title: '', targetAmount: '', currentAmount: '' });
+                setEditingGoalId(null);
+              }
+            }}>
               {showGoalForm ? 'Cancel' : '+ New Goal'}
             </button>
           </div>
@@ -251,13 +291,19 @@ const Dashboard = () => {
                 return (
                   <div key={goal._id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
-                      <span style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {goal.title}
-                        {isComplete && <span style={{ color: 'var(--success-color)' }}><Check size={16} /></span>}
-                      </span>
-                      <span style={{ color: isComplete ? 'var(--success-color)' : 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        ₹{goal.currentAmount.toFixed(0)} / ₹{goal.targetAmount.toFixed(0)}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {goal.title}
+                          {isComplete && <span style={{ color: 'var(--success-color)' }}><Check size={16} /></span>}
+                        </span>
+                        <span style={{ color: isComplete ? 'var(--success-color)' : 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                          ₹{goal.currentAmount.toFixed(0)} / ₹{goal.targetAmount.toFixed(0)}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <button onClick={() => handleEditGoal(goal)} className="btn-icon" style={{ color: 'var(--primary-color)', padding: '0.25rem' }} title="Edit"><Pencil size={16} /></button>
+                        <button onClick={() => handleDeleteGoal(goal._id)} className="btn-icon" style={{ padding: '0.25rem' }} title="Delete"><Trash2 size={16} /></button>
+                      </div>
                     </div>
                     <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '1rem' }}>
                       <div style={{ height: '100%', width: `${percent}%`, backgroundColor: isComplete ? 'var(--success-color)' : goal.color || 'var(--primary-color)', transition: 'width 0.3s ease' }}></div>

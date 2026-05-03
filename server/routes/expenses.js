@@ -58,8 +58,17 @@ router.get('/monthly-summary', async (req, res) => {
 // Get category summary for pie chart
 router.get('/category-summary', async (req, res) => {
   try {
+    const { month, year } = req.query;
+    let matchStage = { user: req.user._id };
+
+    if (month && year) {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+      matchStage.date = { $gte: startDate, $lte: endDate };
+    }
+
     const summary = await Expense.aggregate([
-      { $match: { user: req.user._id } },
+      { $match: matchStage },
       {
         $group: {
           _id: "$category",
