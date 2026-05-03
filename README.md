@@ -95,46 +95,56 @@ To run this project locally on your machine, follow these steps:
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - A [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account (or a local MongoDB instance)
 
-### 1. Backend Setup
-
-1. Open a terminal and navigate to the server directory:
+### 1. Configure the Backend Environment
+1. Navigate to the server directory:
    ```bash
-   cd ExTracker/server
+   cd server
    ```
-2. Install the backend dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the `server/` directory and add the following variables:
+2. Create a `.env` file in the `server/` directory and add the following variables:
    ```env
    PORT=5000
    MONGODB_URI=your_mongodb_connection_string_here
    JWT_SECRET=your_super_secret_jwt_key
    ```
-4. Start the backend development server:
-   ```bash
-   node server.js
-   ```
-   *The server will run on `http://localhost:5000`.*
 
-### 2. Frontend Setup
+### 2. Run Both Frontend and Backend
 
-1. Open a new terminal window and navigate to the client directory:
-   ```bash
-   cd ExTracker/client
-   ```
-2. Install the frontend dependencies:
-   ```bash
-   npm install
-   ```
-3. Ensure the proxy in `vite.config.js` is correctly pointing to your backend port (`http://localhost:5000`). This is already configured by default.
-4. Start the frontend development server:
-   ```bash
-   npm run dev
-   ```
-   *The client will run on `http://localhost:5173`.*
+You will need two separate terminal windows to run both ends of the application simultaneously.
 
-### 3. Usage
+**Terminal 1: Start the Backend Server**
+```bash
+cd server
+npm install
+node server.js
+```
+*The backend API will run on `http://localhost:5000`.*
+
+**Terminal 2: Start the Frontend Client**
+```bash
+cd client
+npm install
+npm run dev
+```
+*The frontend will run on `http://localhost:5173`.*
+
+### 3. Where to put the API URL Configuration
+
+The frontend connects to the backend API via Axios.
+
+**For Local Development:**
+You do not need to change anything! The `client/vite.config.js` is already set up to proxy all `/api` requests directly to `http://localhost:5000`.
+
+**For Production/Live Deployment:**
+When you deploy your app to the web, you need to tell the frontend where your live backend API is hosted.
+1. Open the file: `client/src/api.js`
+2. Update the `baseURL` to your live backend domain:
+   ```javascript
+   const api = axios.create({
+     baseURL: 'https://your-deployed-backend.com/api', // <-- Update this URL!
+   });
+   ```
+
+### 4. Usage
 Open your browser and navigate to `http://localhost:5173`. You can explore the landing page, create an account, log in, and start tracking your finances!
 
 ---
@@ -147,7 +157,8 @@ To deploy this application to the web:
    - Push your code to GitHub.
    - Connect the repository to your hosting provider.
    - Set the Root Directory to `server`.
-   - Set your Environment Variables (`MONGODB_URI`, `JWT_SECRET`, `PORT`).
+   - Set your Environment Variables (`MONGODB_URI`).
+   - The npm installation command is `npm install`.
    - The start command is `node server.js`.
 
 2. **Frontend Deployment (e.g., Vercel, Netlify):**
@@ -157,5 +168,4 @@ To deploy this application to the web:
    - Before deploying, update the `api.js` base URL to point to your live deployed backend URL instead of `/api`.
    - Deploy.
 
----
-*Built with ❤️ using the MERN stack.*
+
