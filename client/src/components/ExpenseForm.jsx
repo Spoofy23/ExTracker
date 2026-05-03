@@ -87,7 +87,7 @@ const ExpenseForm = ({ onSubmit, initialData = null, onCancel }) => {
         </div>
         
         <div className="form-group">
-          <label className="form-label">Amount ($)</label>
+          <label className="form-label">Amount (₹)</label>
           <input
             type="number"
             name="amount"

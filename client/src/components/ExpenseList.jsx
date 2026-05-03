@@ -29,7 +29,7 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
               <td>
                 <span className="badge">{expense.category}</span>
               </td>
-              <td style={{ fontWeight: 600 }}>${expense.amount.toFixed(2)}</td>
+              <td style={{ fontWeight: 600 }}>₹{expense.amount.toFixed(2)}</td>
               <td style={{ color: 'var(--text-secondary)', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {expense.description || '-'}
               </td>

@@ -76,7 +76,7 @@ const Budgets = () => {
             </div>
             
             <div className="form-group">
-              <label className="form-label">Monthly Limit ($)</label>
+              <label className="form-label">Monthly Limit (₹)</label>
               <input
                 type="number"
                 name="amount"
@@ -105,7 +105,7 @@ const Budgets = () => {
                 {budgets.map(b => (
                   <div key={b._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-color)', borderRadius: '8px' }}>
                     <span style={{ fontWeight: '500' }}>{b.category}</span>
-                    <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>${b.amount.toFixed(2)}</span>
+                    <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{b.amount.toFixed(2)}</span>
                   </div>
                 ))}
               </div>

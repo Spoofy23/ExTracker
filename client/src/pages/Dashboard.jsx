@@ -127,7 +127,7 @@ const Dashboard = () => {
         {/* Total This Month with MoM Badge */}
         <div className="card stat-card" style={{ position: 'relative' }}>
           <span className="stat-title">Total This Month</span>
-          <span className="stat-value">${totalThisMonth.toFixed(2)}</span>
+          <span className="stat-value">₹{totalThisMonth.toFixed(2)}</span>
           
           {momChange !== null && (
             <div style={{ 
@@ -187,7 +187,7 @@ const Dashboard = () => {
                 </Pie>
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--surface-color)', borderColor: 'var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                  formatter={(value) => `$${value.toFixed(2)}`}
+                  formatter={(value) => `₹${value.toFixed(2)}`}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -216,10 +216,10 @@ const Dashboard = () => {
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                  <input type="number" placeholder="Target ($)" className="form-input" value={newGoal.targetAmount} onChange={e => setNewGoal({...newGoal, targetAmount: e.target.value})} required min="1" />
+                  <input type="number" placeholder="Target (₹)" className="form-input" value={newGoal.targetAmount} onChange={e => setNewGoal({...newGoal, targetAmount: e.target.value})} required min="1" />
                 </div>
                 <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                  <input type="number" placeholder="Already Saved ($)" className="form-input" value={newGoal.currentAmount} onChange={e => setNewGoal({...newGoal, currentAmount: e.target.value})} min="0" />
+                  <input type="number" placeholder="Already Saved (₹)" className="form-input" value={newGoal.currentAmount} onChange={e => setNewGoal({...newGoal, currentAmount: e.target.value})} min="0" />
                 </div>
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={addingGoal}>Save Goal</button>
@@ -239,7 +239,7 @@ const Dashboard = () => {
                         {isComplete && <span style={{ color: 'var(--success-color)' }}><Check size={16} /></span>}
                       </span>
                       <span style={{ color: isComplete ? 'var(--success-color)' : 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        ${goal.currentAmount.toFixed(0)} / ${goal.targetAmount.toFixed(0)}
+                        ₹{goal.currentAmount.toFixed(0)} / ₹{goal.targetAmount.toFixed(0)}
                       </span>
                     </div>
                     <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '1rem' }}>
@@ -274,7 +274,7 @@ const Dashboard = () => {
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                         <span style={{ fontWeight: '500' }}>{budget.category}</span>
                         <span style={{ color: isOver ? 'var(--danger-color)' : 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                          ${spent.toFixed(0)} / ${budget.amount.toFixed(0)}
+                          ₹{spent.toFixed(0)} / ₹{budget.amount.toFixed(0)}
                         </span>
                       </div>
                       <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -303,7 +303,7 @@ const Dashboard = () => {
                       <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{expense.title}</span>
                       <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{new Date(expense.date).toLocaleDateString()} &bull; {expense.category}</span>
                     </div>
-                    <span style={{ fontWeight: '600', color: 'var(--danger-color)' }}>-${expense.amount.toFixed(2)}</span>
+                    <span style={{ fontWeight: '600', color: 'var(--danger-color)' }}>-₹{expense.amount.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
