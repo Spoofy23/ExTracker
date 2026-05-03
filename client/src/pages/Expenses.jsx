@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Download } from 'lucide-react';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
 import api from '../api';
 
 const Expenses = () => {
+  const location = useLocation();
   const [expenses, setExpenses] = useState([]);
-  const [editingExpense, setEditingExpense] = useState(null);
+  const [editingExpense, setEditingExpense] = useState(location.state?.editExpense || null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', category: '' });
+
+  useEffect(() => {
+    if (location.state?.editExpense) {
+      setEditingExpense(location.state.editExpense);
+      // Clean up state so a refresh doesn't trigger edit mode again
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchExpenses = async (filters = {}) => {
     try {

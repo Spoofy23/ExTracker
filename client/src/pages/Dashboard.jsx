@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Target, Plus, Check } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Target, Plus, Check, Trash2, Pencil } from 'lucide-react';
 import api from '../api';
 
 const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b', '#10b981'];
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [totalThisMonth, setTotalThisMonth] = useState(0);
   const [momChange, setMomChange] = useState(null); // Percentage change Month over Month
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Goal Form State
   const [showGoalForm, setShowGoalForm] = useState(false);
@@ -112,6 +114,21 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteExpense = async (id) => {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      try {
+        await api.delete(`/expenses/${id}`);
+        fetchData(); // refresh dashboard data
+      } catch (error) {
+        console.error('Failed to delete expense', error);
+      }
+    }
+  };
+
+  const handleEditExpense = (expense) => {
+    navigate('/expenses', { state: { editExpense: expense } });
+  };
+
   if (loading) return <div style={{ padding: '2rem' }}>Loading dashboard...</div>;
 
   return (
@@ -182,7 +199,7 @@ const Dashboard = () => {
           {categorySummary.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={categorySummary} dataKey="total" nameKey="_id" cx="50%" cy="50%" outerRadius={120} fill="#8884d8" label={({ _id, percent }) => `${_id} ${(percent * 100).toFixed(0)}%`}>
+                <Pie data={categorySummary} dataKey="total" nameKey="_id" cx="50%" cy="50%" outerRadius="65%" fill="#8884d8" label={({ _id, percent }) => `${_id} ${(percent * 100).toFixed(0)}%`}>
                   {categorySummary.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                 </Pie>
                 <Tooltip 
@@ -293,17 +310,26 @@ const Dashboard = () => {
           <div className="card" style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0 }}>Recent Transactions</h3>
+              <Link to="/expenses" className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                View All
+              </Link>
             </div>
             
             {recentExpenses.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {recentExpenses.map(expense => (
                   <div key={expense._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                       <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{expense.title}</span>
                       <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{new Date(expense.date).toLocaleDateString()} &bull; {expense.category}</span>
                     </div>
-                    <span style={{ fontWeight: '600', color: 'var(--danger-color)' }}>-₹{expense.amount.toFixed(2)}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{ fontWeight: '600', color: 'var(--danger-color)' }}>-₹{expense.amount.toFixed(2)}</span>
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <button onClick={() => handleEditExpense(expense)} className="btn-icon" style={{ color: 'var(--primary-color)', padding: '0.25rem' }} title="Edit"><Pencil size={16} /></button>
+                        <button onClick={() => handleDeleteExpense(expense._id)} className="btn-icon" style={{ padding: '0.25rem' }} title="Delete"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

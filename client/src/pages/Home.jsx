@@ -1,7 +1,14 @@
-import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { PieChart, LineChart, ShieldCheck, Zap, BarChart3, Smartphone, WalletCards } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const Home = () => {
+  const { user } = useContext(AuthContext);
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       
